@@ -4,7 +4,8 @@ A realtime GUI radar and activity tracker for Star Citizen that parses your Game
 
 ![Star Citizen Version](https://img.shields.io/badge/Star%20Citizen-4.0+-blue)
 ![Python Version](https://img.shields.io/badge/Python-3.7+-green)
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![Yertz](https://img.shields.io/badge/Yertz)
+
 
 ## Showcase
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7f43ffb8-155b-4ae3-8370-513d7f4cc177" />
@@ -274,7 +275,7 @@ The codebase is organized into several sections:
 
 ## License
 
-MIT License - See LICENSE file for details
+ALL RIGHTS RESERVED
 
 ## Support the author
 
