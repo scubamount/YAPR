@@ -4,7 +4,7 @@ A realtime GUI radar and activity tracker for Star Citizen that parses your Game
 
 ![Star Citizen Version](https://img.shields.io/badge/Star%20Citizen-4.0+-blue)
 ![Python Version](https://img.shields.io/badge/Python-3.7+-green)
-![Yertz](https://img.shields.io/badge/Yertz)
+![Static Badge](https://img.shields.io/badge/-Yertz%20and%20Yertz-Yertz?style=plastic&color=blue&link=https%3A%2F%2Fgithub.com%2Fscubamount)
 
 
 ## Showcase
