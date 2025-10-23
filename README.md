@@ -6,6 +6,12 @@ A real-time radar and activity tracker for Star Citizen that parses your Game.lo
 ![Python Version](https://img.shields.io/badge/Python-3.7+-green)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
+## Showcase
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/7f43ffb8-155b-4ae3-8370-513d7f4cc177" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/262e964d-7eb1-44e9-8560-8ca812c9663a" />
+
+
+
 ## Features
 
 ### 🎯 Real-Time Radar Display
