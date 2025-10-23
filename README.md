@@ -87,8 +87,8 @@ A real-time radar and activity tracker for Star Citizen that parses your Game.lo
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/YOUR_USERNAME/sc-radar-dungeon.git
-cd sc-radar-dungeon
+git clone https://github.com/scubamount/YAPR.git
+cd yapr
 ```
 
 2. **Install dependencies:**
