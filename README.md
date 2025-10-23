@@ -1,6 +1,6 @@
 # Yertz Advanced Personal Reporter (YAPR)
 
-A realtime GUI radar and activity tracker for Star Citizen that parses your Game.log file to provide situational awareness and statistics tracking based on advanced adaptive logic filtering.
+A realtime GUI radar and activity tracker for Star Citizen that parses your Game.log file to provide situational awareness and statistics tracking based on advanced adaptive logic filtering. This advanced logic will also work for future unreleased content.
 
 ![Star Citizen Version](https://img.shields.io/badge/Star%20Citizen-4.0+-blue)
 ![Python Version](https://img.shields.io/badge/Python-3.7+-green)
