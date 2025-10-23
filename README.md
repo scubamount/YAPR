@@ -278,11 +278,11 @@ The codebase is organized into several sections:
 MIT License - See LICENSE file for details
 
 ## Support the author
-If you'd like to support development you can use my Star Citizen referral link:
+If you'd like to support development:
 
-https://www.robertsspaceindustries.com/enlist?referral=STAR-X9TD-9G29
+SC Referral code: `STAR-X9TD-9G29`
+https://ko-fi.com/yerts
 
-Referral code: `STAR-X9TD-9G29`
 
 Use the code when signing up — thanks for your support!
 
