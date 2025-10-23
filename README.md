@@ -284,13 +284,6 @@ SC Referral code: `STAR-X9TD-9G29`
 https://www.patreon.com/dotyerts
 https://ko-fi.com/yerts
 
-
-Use the code when signing up — thanks for your support!
-
-## Credits
-
-Created by the Star Citizen community for enhanced gameplay awareness.
-
 ## Disclaimer
 
 This tool only reads the Game.log file and does not modify any game files or memory. It provides no gameplay advantages beyond what's visible in the log file. Use at your own discretion.
