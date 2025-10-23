@@ -92,7 +92,7 @@ pip install tkinter
 *Note: Tkinter usually comes with Python. If not, install it via your package manager.*
 
 3. **Configure the log path (if needed):**
-Edit `sc_radar_dungeon.py` and update the `LOG_PATH` variable:
+Edit `yapr.py` and update the `LOG_PATH` variable:
 ```python
 LOG_PATH = r"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log"
 ```
@@ -102,7 +102,7 @@ LOG_PATH = r"C:\Program Files\Roberts Space Industries\StarCitizen\LIVE\Game.log
 ### Running the Application
 
 ```bash
-python sc_radar_dungeon.py
+python yapr.py
 ```
 
 Or if you have the compiled executable:
@@ -270,6 +270,15 @@ The codebase is organized into several sections:
 ## License
 
 MIT License - See LICENSE file for details
+
+## Support the author
+If you'd like to support development you can use my Star Citizen referral link:
+
+https://www.robertsspaceindustries.com/enlist?referral=STAR-X9TD-9G29
+
+Referral code: `STAR-X9TD-9G29`
+
+Use the code when signing up — thanks for your support!
 
 ## Credits
 
