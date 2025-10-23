@@ -11,6 +11,9 @@
 # - Auto-detect player name and game version from full log scan
 # - Persistent kill tracking across sessions
 # ==============================================================================
+# https://www.robertsspaceindustries.com/enlist?referral=STAR-X9TD-9G29
+# Referral code: `STAR-X9TD-9G29`
+# YERTZ WAS HERE
 
 import threading
 import time
@@ -206,7 +209,7 @@ def load_config():
     """Load persistent configuration from file"""
     print(f"[DEBUG] Looking for export at: {EXPORT_LOG_PATH}")
     print(f"[DEBUG] Export exists: {os.path.exists(EXPORT_LOG_PATH)}")
-    
+
     try:
         if os.path.exists(EXPORT_LOG_PATH):
             with open(EXPORT_LOG_PATH, "r", encoding="utf-8") as f:
@@ -238,9 +241,9 @@ def scan_log_for_metadata():
     try:
         if not os.path.exists(LOG_PATH):
             return
-        
+
         add_event("[SYSTEM] Scanning log file for player name and game version...", "info")
-        
+
         with open(LOG_PATH, "r", encoding="utf-8", errors="ignore") as f:
             for line in f:
                 if state["player_name"] == "Unknown":
@@ -251,7 +254,7 @@ def scan_log_for_metadata():
                         global PLAYER_NAME
                         PLAYER_NAME = detected_name
                         add_event(f"[SYSTEM] Player detected: {detected_name}", "you")
-                
+
                 if state["player_id"] is None:
                     pid_m = player_id_re.search(line)
                     if pid_m:
@@ -260,7 +263,7 @@ def scan_log_for_metadata():
                         if player_name == state.get("player_name") or state.get("player_name") == "Unknown":
                             state["player_id"] = player_id
                             add_event(f"[SYSTEM] Player ID detected: {player_id}", "info")
-                    
+
                     geid_m = player_geid_re.search(line)
                     if geid_m:
                         potential_geid = geid_m.group(1)
@@ -270,7 +273,7 @@ def scan_log_for_metadata():
                             add_event(f"[SYSTEM] Player GEID detected: {potential_geid}", "info")
                         elif state["player_id"] is None:
                             state["player_id"] = potential_geid
-                
+
                 if state["game_version"] == "Unknown":
                     version_m = version_pattern_re.search(line)
                     if version_m:
@@ -283,20 +286,20 @@ def scan_log_for_metadata():
                         global GAME_VERSION
                         GAME_VERSION = detected_version
                         add_event(f"[SYSTEM] Game version detected: {detected_version}", "info")
-                
-                if (state["player_name"] != "Unknown" and 
-                    state["game_version"] != "Unknown" and 
+
+                if (state["player_name"] != "Unknown" and
+                    state["game_version"] != "Unknown" and
                     state["player_id"] is not None):
                     break
-        
+
         if state["player_name"] == "Unknown":
             add_event("[SYSTEM] Warning: Could not detect player name from log", "info")
         if state["game_version"] == "Unknown":
             add_event("[SYSTEM] Warning: Could not detect game version from log", "info")
-            
+
     except Exception as e:
         add_event(f"[SYSTEM] Error scanning log: {e}", "info")
-        
+
 def is_self(name: str) -> bool:
     """Check if a name matches the current player (case-insensitive)"""
     if not name or not state.get("player_name"):
@@ -314,7 +317,7 @@ def clear_radar_data():
         "game_version": state["game_version"],
         "player_id": state["player_id"],
     }
-    
+
     # Clear real-time tracking
     state["entities"].clear()
     state["pings"].clear()
@@ -323,18 +326,18 @@ def clear_radar_data():
     state["current_vehicle"] = None
     state["last_seen_player"] = {"name": None, "ts": 0}
     state["spawn_reset_cooldown"].clear()
-    
+
     # Keep zone mentions but clear old ones
     state["zone_mentions"].clear()
-    
+
     # Clear recent events
     state["events"].clear()
-    
+
     # Reset session kills (they're for the new server session)
     state["session_npc_kills"] = 0
     state["session_player_kills"] = 0
     state["session_kills"] = 0
-    
+
     # Restore persistent data
     state["npc_kills"] = persistent_kills["npc_kills"]
     state["player_kills"] = persistent_kills["player_kills"]
@@ -342,7 +345,7 @@ def clear_radar_data():
     state["player_name"] = persistent_kills["player_name"]
     state["game_version"] = persistent_kills["game_version"]
     state["player_id"] = persistent_kills["player_id"]
-    
+
     add_event("[SERVER SWAP] Radar data cleared - new server session started", "info")
 # ---------------- HELPERS ----------------
 def add_event(text: str, tag: str = "info"):
@@ -434,9 +437,9 @@ def get_color_for_age(age: float, lifetime: float, is_newest: bool, tag: str, co
     """Enhanced color transition - each ping fades independently based on its own age"""
     if age <= PING_FLASH_WINDOW:
         return "#ffffff"
-    
+
     alpha = max(0.0, 1.0 - (age / lifetime))
-    
+
     if tag == "npc_kill":
         type_col = colors['npc_kill_fg']
     elif tag == "player_kill":
@@ -451,7 +454,7 @@ def get_color_for_age(age: float, lifetime: float, is_newest: bool, tag: str, co
         type_col = colors.get('vehicle_confirmed_fg', '#ffff00')
     else:
         type_col = colors['transit_fg']
-    
+
     if alpha >= 0.5:
         blend_factor = (1.0 - alpha) / 0.5
         return interpolate_color(type_col, "#808080", blend_factor * 0.5)
@@ -512,7 +515,7 @@ def play_dungeon_alert():
 def export_summary_to_file():
     try:
         now_dt = datetime.now(timezone.utc)
-        
+
         existing_data = {}
         if os.path.exists(EXPORT_LOG_PATH):
             try:
@@ -520,22 +523,22 @@ def export_summary_to_file():
                     existing_data = json.load(f)
             except Exception:
                 pass
-        
+
         existing_transits = set(existing_data.get("unique_transits", []))
         existing_players = set(existing_data.get("unique_players", []))
         existing_players_killed = set(existing_data.get("players_killed", []))
         existing_zones = set(existing_data.get("detected_zones", []))
-        
+
         current_transits = state.get("transit_locations", set())
         current_players = state.get("player_names", set())
         current_players_killed = state.get("players_killed", set())
         current_zones = state.get("detected_zones", set())
-        
+
         all_transits = existing_transits.union(current_transits)
         all_players = existing_players.union(current_players)
         all_players_killed = existing_players_killed.union(current_players_killed)
         all_zones = existing_zones.union(current_zones)
-        
+
         data = {
             "last_updated": now_dt.isoformat(),
             "player_name": state.get("player_name", "Unknown"),
@@ -548,10 +551,10 @@ def export_summary_to_file():
             "players_killed": sorted(list(all_players_killed)),
             "detected_zones": sorted(list(all_zones)),
         }
-        
+
         with open(EXPORT_LOG_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
-            
+
         current_time = time.time()
         if current_time - state.get("last_export_log", 0) > 300:
             add_event(f"[EXPORT] Data updated in {os.path.basename(EXPORT_LOG_PATH)}", "info")
@@ -589,7 +592,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
         if raw is None:
             time.sleep(0.05)
             continue
-        
+
         if state["player_id"] is None:
             pid_m = player_id_re.search(raw)
             if pid_m:
@@ -598,7 +601,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 if player_name == state.get("player_name") or state.get("player_name") == "Unknown":
                     state["player_id"] = player_id
                     add_event(f"[SYSTEM] Player ID detected: {player_id}", "info")
-            
+
             geid_m = player_geid_re.search(raw)
             if geid_m:
                 potential_geid = geid_m.group(1)
@@ -608,7 +611,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                     add_event(f"[SYSTEM] Player GEID detected: {potential_geid}", "info")
                 elif state["player_id"] is None:
                     state["player_id"] = potential_geid
-        
+
         login_m = login_pattern_re.search(raw)
         if login_m:
             detected_name = login_m.group(1)
@@ -617,7 +620,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 global PLAYER_NAME
                 PLAYER_NAME = detected_name
                 add_event(f"[SYSTEM] Player detected: {detected_name}", "you")
-        
+
         version_m = version_pattern_re.search(raw)
         if version_m:
             version_num = version_m.group(1)
@@ -630,7 +633,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 global GAME_VERSION
                 GAME_VERSION = detected_version
                 add_event(f"[SYSTEM] Game version detected: {detected_version}", "info")
-        
+
         ts_m = timestamp_re.search(raw)
         ts = ts_m.group(1) if ts_m else datetime.now(timezone.utc).isoformat()
         short_ts = ts.split('T')[1][:8] if 'T' in ts else ts
@@ -640,7 +643,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
         if spawned_re.search(raw):
             state["pending_server_swap"] = True
             state["server_swap_time"] = time.time()
-        
+
         frontend_m = frontend_closed_re.search(raw)
         if frontend_m and state.get("pending_server_swap"):
             # Check if this happened within 10 seconds of the spawn
@@ -655,34 +658,34 @@ def parser_loop(in_q: queue.Queue, state: dict):
         if spawn_reset_m:
             name = spawn_reset_m.group(1).strip()
             player_id = spawn_reset_m.group(2)
-            
+
             # Skip if this is your own player ID/GEID
             if player_id == state.get("player_id") or is_self(name):
                 continue
-                
+
             if is_valid_player_name(name):
                 # Extract spawnpoint info from the full line
                 spawnpoint_match = re.search(r'spawnpoint\s+([^\[]+)', raw, re.IGNORECASE)
                 if spawnpoint_match:
                     spawnpoint_name = spawnpoint_match.group(1).strip()
-                    
+
                     # Check if this is actually a spawn reset (not just "Unknown")
                     spawn_indicators = ['bed', 'hab', 'medbay', 'medical', 'spawnpoint', 'clinic']
                     is_actual_reset = any(indicator in spawnpoint_name.lower() for indicator in spawn_indicators)
-                    
+
                     # Skip if it's just "Unknown" spawnpoint
                     if spawnpoint_name.lower() == "unknown":
                         continue
-                    
+
                     if is_actual_reset:
                         now = time.time()
-                        
+
                         last_reset = state["spawn_reset_cooldown"].get(name, 0)
                         if now - last_reset < 10:
                             continue
-                        
+
                         state["spawn_reset_cooldown"][name] = now
-                        
+
                         ent = state["entities"].get(name, {"type":"player", "status":"alive"})
                         ent.update({
                             "spawn_reset": True,
@@ -699,7 +702,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
             vehicle_name = setup_envelope_m.group(1).strip()
             vehicle_id = setup_envelope_m.group(2).strip()
             now = time.time()
-            
+
             # Store this as a pending vehicle with name
             state["pending_vehicle"] = {
                 "ts": now,
@@ -708,17 +711,17 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 "id": vehicle_id,
                 "from_envelope": True
             }
-        
+
         if fuel_controller_lambda_re.search(raw):
             now = time.time()
-            
+
             # Check if we have a pending vehicle from setup envelope (within 5 seconds)
             pending = state.get("pending_vehicle")
             if pending and pending.get("from_envelope") and (now - pending.get("ts", 0) < 5):
                 # We have a named vehicle from setup envelope
                 vehicle_name = pending.get("name", "Unknown Vehicle")
                 vehicle_name_short = vehicle_name.split('_')[0] if '_' in vehicle_name else vehicle_name
-                
+
                 ping = {
                     "ts": now,
                     "pos": (0.0, 0.0, 0.0),
@@ -735,7 +738,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
             else:
                 # Unknown vehicle
                 state["pending_vehicle"] = {"ts": now, "confirmed": False}
-                
+
                 ping = {
                     "ts": now,
                     "pos": (0.0, 0.0, 0.0),
@@ -747,14 +750,14 @@ def parser_loop(in_q: queue.Queue, state: dict):
                     "overlay_anchor": "bottom_left"
                 }
                 add_ping("Vehicle?", ping)
-            
+
             _cleanup_pings(state)
 
         if fuel_controller_confirm_re.search(raw):
             if state.get("pending_vehicle") and not state["pending_vehicle"].get("confirmed"):
                 state["pending_vehicle"]["confirmed"] = True
                 vehicle_name = state["pending_vehicle"].get("name")
-                
+
                 if vehicle_name:
                     # Update named vehicle ping
                     vehicle_name_short = vehicle_name.split('_')[0] if '_' in vehicle_name else vehicle_name
@@ -774,10 +777,10 @@ def parser_loop(in_q: queue.Queue, state: dict):
             vehicle_name, vehicle_id, zone, pos_x, pos_y, pos_z, driver, level_from, level_to, caused_by, damage_type = vd_m.groups()
             now = time.time()
             pos = (float(pos_x), float(pos_y), float(pos_z))
-            
+
             # Record the zone
             record_zone(zone, 'vehicle_destruction')
-            
+
             if caused_by and is_valid_player_name(caused_by) and not is_self(caused_by):
                 if caused_by not in state["entities"] or state["entities"].get(caused_by, {}).get("type") != "player":
                     state["entities"][caused_by] = {
@@ -791,10 +794,10 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 else:
                     state["entities"][caused_by]["last_seen"] = now
                     state["entities"][caused_by]["pos"] = pos
-            
+
             vid = vehicle_id
             state_names = {0: "Alive", 1: "Softed", 2: "FullDead"}
-            
+
             if vid not in state["vehicles"]:
                 state["vehicles"][vid] = {
                     "name": vehicle_name,
@@ -805,7 +808,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                     "last_update": now,
                     "history": []
                 }
-            
+
             vehicle = state["vehicles"][vid]
             vehicle["state"] = int(level_to)
             vehicle["pos"] = pos
@@ -817,7 +820,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 "attacker": caused_by,
                 "ts": now
             })
-            
+
             ping = {
                 "ts": now,
                 "pos": pos,
@@ -830,7 +833,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 "overlay": True,
                 "overlay_anchor": "top_right"
             }
-            
+
             friendly = f"Vehicle: {vehicle_name.split('_')[0]}"
             add_ping(friendly, ping)
             add_event(f"{short_ts} [VEHICLE {state_names[int(level_to)]}] {vehicle_name} destroyed by {caused_by} ({level_from}→{level_to})", "vehicle")
@@ -933,14 +936,14 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 # Skip if this is you
                 if is_self(name):
                     continue
-                
+
                 # Check if line contains your player ID/GEID - if so, skip
                 if state.get("player_id") and state["player_id"] in raw:
                     continue
-                
+
                 now = time.time()
                 state["last_seen_player"] = {"name": name, "ts": now}
-                    
+
                 prevpos = None
                 for prev in reversed(list(recent_lines)[-12:]):
                     pm = pos_re.search(prev)
@@ -987,14 +990,14 @@ def parser_loop(in_q: queue.Queue, state: dict):
             # Skip if you killed yourself
             if victim and is_self(victim):
                 continue
-            
+
             if killer and is_self(killer) and victim:
                 is_npc = is_npc_name(victim)
                 is_player = is_valid_player_name(victim) and not is_npc
                 if is_npc or is_player:
                     now = time.time()
                     record_zone(zone, 'death')
-                    
+
                     if is_player:
                         state["player_kills"] += 1
                         state["session_player_kills"] += 1
@@ -1002,13 +1005,13 @@ def parser_loop(in_q: queue.Queue, state: dict):
                     else:
                         state["npc_kills"] += 1
                         state["session_npc_kills"] += 1
-                    
+
                     state["total_kills"] = state["player_kills"] + state["npc_kills"]
                     state["session_kills"] = state["session_player_kills"] + state["session_npc_kills"]
-                    
+
                     if state["session_kills"] % 5 == 0 or state["session_kills"] == 1:
                         export_summary_to_file()
-                    
+
                     prevpos = None
                     for prev in reversed(recent_lines):
                         if victim in prev:
@@ -1031,7 +1034,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                         victim_display = victim.split('_')[-2] if '_' in victim else "NPC"
                         victim_display = victim_display.capitalize()
                         add_event(f"{short_ts} [NPC KILL] Killed {victim_display}", "npc_kill")
-                    
+
                     ping = {
                         "ts": now,
                         "pos": pos,
@@ -1056,17 +1059,17 @@ def parser_loop(in_q: queue.Queue, state: dict):
                 victim = fb.group(1)
                 zone = fb.group(2) or state.get("current_station") or "Unknown"
                 killer = fb.group(3) or ""
-                
+
                 # Skip if you killed yourself
                 if victim and is_self(victim):
                     continue
-                
+
                 if killer and is_self(killer) and victim:
                     is_npc = is_npc_name(victim)
                     is_player = is_valid_player_name(victim) and not is_npc
                     if is_npc or is_player:
                         now = time.time()
-                        
+
                         if is_player:
                             state["player_kills"] += 1
                             state["session_player_kills"] += 1
@@ -1074,13 +1077,13 @@ def parser_loop(in_q: queue.Queue, state: dict):
                         else:
                             state["npc_kills"] += 1
                             state["session_npc_kills"] += 1
-                        
+
                         state["total_kills"] = state["player_kills"] + state["npc_kills"]
                         state["session_kills"] = state["session_player_kills"] + state["session_npc_kills"]
-                    
+
                         if state["session_kills"] % 5 == 0 or state["session_kills"] == 1:
                             export_summary_to_file()
-                        
+
                         pos = None
                         for prev in reversed(recent_lines):
                             if victim in prev:
@@ -1100,7 +1103,7 @@ def parser_loop(in_q: queue.Queue, state: dict):
                             victim_display = victim.split('_')[-2] if '_' in victim else "NPC"
                             victim_display = victim_display.capitalize()
                             add_event(f"{short_ts} [NPC KILL] Killed {victim_display} in {zone}", "npc_kill")
-                        
+
                         ping = {
                             "ts": now,
                             "pos": pos or (0,0,0),
@@ -1179,14 +1182,14 @@ def parser_loop(in_q: queue.Queue, state: dict):
             if is_valid_player_name(name) and not is_self(name):
                 now = time.time()
                 state["last_seen_player"] = {"name": name, "ts": now}
-                
+
                 ent = state["entities"].get(name, {"type":"player","status":"alive"})
                 if ent.get("status") == "dead":
                     ent["status"] = "alive"
                     add_event(f"{short_ts} [SPAWN FLOW] {name} respawned, marked alive again", "player")
                 else:
                     add_event(f"{short_ts} [SPAWN FLOW] Detected {name}", "player")
-                
+
                 ent["last_seen"] = now
                 state["entities"][name] = ent
                 state["player_names"].add(name)
@@ -1209,14 +1212,14 @@ def parser_loop(in_q: queue.Queue, state: dict):
             attacker = hostility_m.group(1).strip() if hostility_m.group(1) else None
             target = hostility_m.group(2).strip() if hostility_m.group(2) else None
             child_player = hostility_m.group(3).strip() if hostility_m.group(3) else None
-            
+
             now = time.time()
-            
+
             # Detect attacker if valid player
             if attacker:
                 if is_valid_player_name(attacker) and not is_self(attacker):
                     state["last_seen_player"] = {"name": attacker, "ts": now}
-                    
+
                     if attacker not in state["entities"] or state["entities"].get(attacker, {}).get("type") != "player":
                         ent = {"type": "player", "status": "alive", "last_seen": now}
                         state["entities"][attacker] = ent
@@ -1224,12 +1227,12 @@ def parser_loop(in_q: queue.Queue, state: dict):
                         add_event(f"{short_ts} [PLAYER] {attacker} detected (hostility attacker)", "player")
                     else:
                         state["entities"][attacker]["last_seen"] = now
-            
+
             # Detect child player (the actual player being hit)
             if child_player:
                 if is_valid_player_name(child_player) and not is_self(child_player):
                     state["last_seen_player"] = {"name": child_player, "ts": now}
-                    
+
                     if child_player not in state["entities"] or state["entities"].get(child_player, {}).get("type") != "player":
                         ent = {"type": "player", "status": "alive", "last_seen": now}
                         state["entities"][child_player] = ent
@@ -1259,11 +1262,11 @@ def parser_loop(in_q: queue.Queue, state: dict):
         stale = [k for k,v in state["entities"].items() if nowt - v.get("last_seen", nowt) > ENTITY_TIMEOUT and not k in state["pings"]]
         for k in stale:
             del state["entities"][k]
-        
+
         stale_vehicles = [vid for vid, v in state["vehicles"].items() if nowt - v.get("last_update", nowt) > VEHICLE_TIMEOUT]
         for vid in stale_vehicles:
             del state["vehicles"][vid]
-        
+
         _cleanup_pings(state)
 
 # ---------------- PING CLEANUP ----------------
@@ -1273,10 +1276,10 @@ def _cleanup_pings(state):
     for key in list(state["pings"].keys()):
         pings = state["pings"][key]
         kept = []
-        
+
         for p in pings:
             tag = str(p.get("tag", "")).lower()
-            
+
             if "exit" in tag or "exfil" in tag:
                 lifetime = EXIT_PING_LIFETIME
             elif "dungeon" in tag:
@@ -1289,32 +1292,32 @@ def _cleanup_pings(state):
                 lifetime = 30.0
             else:
                 lifetime = PING_LIFETIME
-            
+
             ts = p.get("ts", 0)
             age = now - ts if ts else 999999
-            
+
             if age <= lifetime:
                 kept.append(p)
-        
+
         kept.sort(key=lambda x: x.get("ts", 0))
-        
+
         max_pings = 10
-        
-        low_priority = ["Elevator", "HangarLobby", "Habs Transit", "TransitManager-001", 
+
+        low_priority = ["Elevator", "HangarLobby", "Habs Transit", "TransitManager-001",
                        "TransitManager_Hangar-to-Lobby", "TransitManager_Habs", "Spaceport-to-Hangars", "Internal", "Spaceport_to_Hangars", "MetroPlatform"]
-        
+
         if any(lp in key for lp in low_priority):
             max_pings = 1
-        
+
         if len(kept) > max_pings:
             kept = kept[-max_pings:]
-        
+
         for p in kept:
             p["fresh"] = False
         if kept:
             newest = kept[-1]
             newest["fresh"] = (now - newest.get("ts", 0) <= PING_FLASH_WINDOW)
-        
+
         if kept:
             state["pings"][key] = kept
         else:
@@ -1423,13 +1426,13 @@ class RadarApp:
 
         ttk.Label(self.panel, text="Detected Players",
                  style="Header.TLabel").grid(row=3, column=0, sticky="w", pady=(8,0))
-        
+
         kill_frame = ttk.Frame(self.panel, style="Dark.TFrame")
         kill_frame.grid(row=3, column=0, sticky="e", pady=(8,0))
-        self.kill_label = ttk.Label(kill_frame, text="Kills: 0", style="Legend.TLabel", 
+        self.kill_label = ttk.Label(kill_frame, text="Kills: 0", style="Legend.TLabel",
                                     font=("TkDefaultFont", 10, "bold"))
         self.kill_label.pack()
-        
+
         self.players_log = DarkScrolledText(self.panel, self.colors, width=60, height=10,
                                            wrap="word", font=("TkDefaultFont",10))
         self.players_log.grid(row=4, column=0, sticky="nsew", pady=(6,6))
@@ -1534,7 +1537,7 @@ class RadarApp:
 
         self.canvas.create_text(12, 10, anchor="nw", text=f"You: {self.state.get('player_name', 'Unknown')}",
                                fill=self.colors['label_fg'], font=("TkDefaultFont",11,"bold"))
-        
+
         current_vehicle = self.state.get("current_vehicle")
         if current_vehicle:
             vehicle_display = current_vehicle.split('_')[0] if '_' in current_vehicle else current_vehicle
@@ -1543,7 +1546,7 @@ class RadarApp:
             y_offset = 48
         else:
             y_offset = 30
-        
+
         self.canvas.create_text(12, y_offset, anchor="nw", text=f"Zoom: {self.scale:.2f}x",
                                fill=self.colors['zoom_fg'], font=("TkDefaultFont",10))
 
@@ -1612,7 +1615,7 @@ class RadarApp:
             victim_name_str = f"{ping.get('victim_name', '')} | " if ping.get("victim_name") else ""
             vehicle_name_str = f"{ping.get('vehicle_name', '').split('_')[0]} | " if ping.get("vehicle_name") else ""
             attacker_str = f"by {ping.get('attacker', '')} | " if ping.get("attacker") else ""
-            
+
             display_name = re.sub(r'TransitManager[-_]?','', manager).strip()
             display_name = display_name if len(display_name) <= 30 else (display_name[:27] + "...")
 
@@ -1654,9 +1657,9 @@ class RadarApp:
 
             r = 8 if is_newest else 6
             outline_col = "#ffffff"
-            
+
             is_kill = ping["tag"] in ("npc_kill", "player_kill", "vehicle")
-            
+
             if is_kill:
                 self.canvas.create_rectangle(sx-r-1, sy-r-1, sx+r+1, sy+r+1,
                                            fill=color, outline=outline_col, width=1)
@@ -1717,10 +1720,10 @@ class RadarApp:
         for last, name, ent in players:
             age = int(now - last)
             status_parts = []
-            
+
             if ent.get("spawn_reset") and (now - ent.get("spawn_reset_ts", 0) < 300):
                 status_parts.append("Reset Spawn")
-            
+
             if ent.get("status") == "dead":
                 death_age = int(now - ent.get("death_ts", now))
                 status_parts.append(f"dead for {death_age}s")
@@ -1730,15 +1733,15 @@ class RadarApp:
                 tag = 'incap'
             else:
                 tag = 'alive' if age < 180 else 'faded' if age < 300 else 'gray'
-            
+
             if ent.get("spawn_reset") and (now - ent.get("spawn_reset_ts", 0) < 300):
                 tag = 'faded'
-            
+
             status_parts.append(f"seen {age}s ago")
-            
+
             status_str = ", ".join(status_parts)
             text = f"{name} ({status_str})\n"
-            
+
             self.players_log.insert(tk.END, text, tag)
 
         self.players_log.yview_moveto(0.0)
@@ -1746,7 +1749,7 @@ class RadarApp:
     def update_vehicles(self):
         self.vehicles_log.delete("1.0", tk.END)
         now = time.time()
-        
+
         if self.state.get("pending_vehicle"):
             pv = self.state["pending_vehicle"]
             age = int(now - pv.get("ts", now))
@@ -1754,64 +1757,64 @@ class RadarApp:
             text = f"Vehicle? - {status} - {age}s ago\n"
             tag = 'softed' if pv.get("confirmed") else 'dead'
             self.vehicles_log.insert(tk.END, text, tag)
-        
+
         if not self.state.get("vehicles") and not self.state.get("pending_vehicle"):
             self.vehicles_log.insert(tk.END, "No vehicles detected\n", "gray")
             return
-        
-        vehicles = sorted(self.state["vehicles"].items(), 
+
+        vehicles = sorted(self.state["vehicles"].items(),
                          key=lambda x: x[1].get("last_update", 0), reverse=True)
-        
+
         for vid, vehicle in vehicles:
             age = int(now - vehicle.get("last_update", now))
             state_names = {0: "Alive", 1: "Softed", 2: "FullDead"}
             state_name = state_names.get(vehicle.get("state", 0), "Unknown")
-            
+
             if vehicle.get("state") == 2:
                 tag = 'dead'
             elif vehicle.get("state") == 1:
                 tag = 'softed'
             else:
                 tag = 'alive'
-            
+
             vname = vehicle.get("name", "Unknown")
             vname_short = vname.split('_')[0] if '_' in vname else vname
-            
+
             text = f"{vname_short} - {state_name}"
-            
+
             if vehicle.get("history"):
                 latest = vehicle["history"][-1]
                 attacker = latest.get("attacker", "Unknown")
                 if attacker and attacker != "unknown":
                     text += f" (by {attacker})"
-            
+
             text += f" - {age}s ago\n"
-            
+
             self.vehicles_log.insert(tk.END, text, tag)
-        
+
         self.vehicles_log.yview_moveto(0.0)
 
     def refresh(self):
         if not self.running:
             return
         self.state["sound_enabled"] = self.sound_alert.get()
-        
+
         version = self.state.get("game_version", "Unknown")
         if version != "Unknown":
             self.root.title(f"Yertz Advanced Personal Reporter - v{version}")
         else:
             self.root.title("Yertz Advanced Personal Reporter")
-        
+
         total_kills = self.state.get("total_kills", 0)
         session_kills = self.state.get("session_kills", 0)
         player_kills = self.state.get("player_kills", 0)
         npc_kills = self.state.get("npc_kills", 0)
         session_player_kills = self.state.get("session_player_kills", 0)
         session_npc_kills = self.state.get("session_npc_kills", 0)
-        
+
         kill_text = f"Player: {player_kills} ({session_player_kills}) | NPC: {npc_kills} ({session_npc_kills})"
         self.kill_label.configure(text=kill_text)
-        
+
         try:
             self.draw()
             self.update_log()
@@ -1836,7 +1839,7 @@ def main():
         return
 
     load_config()
-    
+
     scan_thread = threading.Thread(target=scan_log_for_metadata, daemon=True)
     scan_thread.start()
 
@@ -1847,7 +1850,7 @@ def main():
     root = tk.Tk()
     root.title("Yertz Advanced Personal Reporter")
     app = RadarApp(root, state)
-    
+
     def on_close():
         try:
             export_summary_to_file()
@@ -1855,7 +1858,7 @@ def main():
             print(f"Error saving on close: {e}")
         finally:
             os._exit(0)
-    
+
     root.protocol("WM_DELETE_WINDOW", on_close)
     root.mainloop()
 

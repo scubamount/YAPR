@@ -107,7 +107,7 @@ python yapr.py
 
 Or if you have the compiled executable:
 ```bash
-sc_radar_dungeon.exe
+yapr.exe
 ```
 
 ### Interface Overview
