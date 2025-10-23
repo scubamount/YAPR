@@ -280,7 +280,9 @@ MIT License - See LICENSE file for details
 If you'd like to support development:
 
 SC Referral code: `STAR-X9TD-9G29`
+
 https://www.patreon.com/dotyerts
+
 https://ko-fi.com/yerts
 
 ## Disclaimer
