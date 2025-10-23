@@ -11,7 +11,6 @@ A realtime GUI radar and activity tracker for Star Citizen that parses your Game
 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/262e964d-7eb1-44e9-8560-8ca812c9663a" />
 
 
-
 ## Features
 
 ### 🎯 Real-Time Radar Display
@@ -287,19 +286,6 @@ https://ko-fi.com/yerts
 ## Disclaimer
 
 This tool only reads the Game.log file and does not modify any game files or memory. It provides no gameplay advantages beyond what's visible in the log file. Use at your own discretion.
-
-## Version History
-
-### Current Features
-- Full player tracking with status
-- Vehicle destruction monitoring
-- Kill statistics (persistent)
-- Transit/dungeon detection
-- Auto-detection of player name and game version
-- Server swap handling
-- JSON export functionality
-- Dark/Light mode UI
-- Customizable sound alerts
 
 ---
 
