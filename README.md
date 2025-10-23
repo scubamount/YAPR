@@ -209,7 +209,7 @@ The app automatically detects:
 
 ### Server Swap Handling
 When you change servers, the application:
-- Detects the server swap automatically
+- Attempts to detect the server swap automatically
 - Clears temporary radar data
 - Preserves persistent statistics
 - Resets session kill counters
@@ -259,7 +259,7 @@ The `yapr_export.json` file contains:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+Please feel free to submit pull requests or open issues for bugs and feature requests.
 
 ### Development
 
@@ -277,7 +277,6 @@ The codebase is organized into several sections:
 MIT License - See LICENSE file for details
 
 ## Support the author
-If you'd like to support development:
 
 SC Referral code: `STAR-X9TD-9G29`
 
@@ -291,4 +290,4 @@ This tool only reads the Game.log file and does not modify any game files or mem
 
 ---
 
-**Star Citizen** is a trademark of Cloud Imperium Games Corporation. This project is not affiliated with or endorsed by Cloud Imperium Games.
+**Star Citizen** is a trademark of Cloud Imperium Games Corporation.
