@@ -76,7 +76,7 @@ PLAYER_NAME_BLACKLIST = {
     "default", "persistentstreamingservice", "loadoutservice", "server", "requested", "haptic", "[team_gameservices][haptic]",
     "elevator", "npc kill", "player kill", "npc_kill", "player_kill", "door", "hangardoor", "lobbydoor", "landingarea",
     "carriage", "manager", "habs", "lobby", "hangar", "ghost arena", "dungeon", "exfil", "exhang", "side entrance", "maintenance",
-    "cz station", "orbituary", "ruin station", "unknown", "entity"
+    "cz station", "orbituary", "ruin station", "unknown", "entity", "and", "position", "stopped", "started"
 }
 
 # ---------------- REGEX PATTERNS ----------------
