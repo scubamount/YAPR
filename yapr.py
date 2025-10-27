@@ -76,7 +76,7 @@ PLAYER_NAME_BLACKLIST = {
     "default", "persistentstreamingservice", "loadoutservice", "server", "requested", "haptic", "[team_gameservices][haptic]",
     "elevator", "npc kill", "player kill", "npc_kill", "player_kill", "door", "hangardoor", "lobbydoor", "landingarea",
     "carriage", "manager", "habs", "lobby", "hangar", "ghost arena", "dungeon", "exfil", "exhang", "side entrance", "maintenance",
-    "cz station", "orbituary", "ruin station", "unknown", "entity", "and", "position", "stopped", "started"
+    "cz station", "orbituary", "ruin station", "unknown", "entity", "and", "position", "stopped", "started", "hangardoor_smallfront"
 }
 
 # ---------------- REGEX PATTERNS ----------------
@@ -1361,7 +1361,7 @@ class RadarApp:
     def __init__(self, root, state):
         self.root = root
         self.state = state
-        self.W = 820
+        self.W = 600
         self.H = 720
         self.scale = INITIAL_SCALE
         self.label_font = font.Font(family="TkDefaultFont", size=10)
@@ -1395,25 +1395,23 @@ class RadarApp:
         self.panel = ttk.Frame(root, style="Dark.TFrame")
         self.panel.grid(row=1, column=1, sticky="nsew", padx=(4,8), pady=8)
 
-        root.grid_columnconfigure(0, weight=1)
-        root.grid_columnconfigure(1, weight=0, minsize=400)
-        root.grid_rowconfigure(0, weight=0)
-        root.grid_rowconfigure(1, weight=1)
-        root.grid_rowconfigure(2, weight=0)
-        root.grid_rowconfigure(3, weight=0)
+        self.panel.grid_rowconfigure(1, weight=2)
+        self.panel.grid_rowconfigure(2, weight=0)
+        self.panel.grid_columnconfigure(4, weight=3)
 
-        self.panel.grid_rowconfigure(1, weight=1)
-        self.panel.grid_rowconfigure(4, weight=1)
-        self.panel.grid_rowconfigure(6, weight=1)
-        self.panel.grid_columnconfigure(0, weight=1)
+        # Configure root grid weights - radar gets less space, panel gets more
+        root.grid_columnconfigure(0, weight=1)  # Radar column - smaller
+        root.grid_columnconfigure(1, weight=3)  # Panel column - 3x larger
+        root.grid_rowconfigure(0, weight=0)     # Title row - fixed height
+        root.grid_rowconfigure(1, weight=1)     # Main content - expandable
 
         self.title_label = ttk.Label(root, text="Yertz Advanced Personal Reporter",
                                      style="Header.TLabel")
         self.title_label.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(8,4))
 
         ttk.Label(self.panel, text="Recent Events (Newest First)",
-                 style="Header.TLabel").grid(row=0, column=0, sticky="w", pady=(4,0))
-        self.log = DarkScrolledText(self.panel, self.colors, width=60, height=12,
+                 style="Header.TLabel").grid(row=0, column=0, sticky="ew", pady=(4,0))
+        self.log = DarkScrolledText(self.panel, self.colors, width=80, height=10,
                                    wrap="word", font=("TkDefaultFont",10))
         self.log.grid(row=1, column=0, sticky="nsew", pady=(6,6))
         self.log.configure(state="normal")
@@ -1422,32 +1420,89 @@ class RadarApp:
         self.legend = ttk.Label(self.panel,
                                text="Green=You  Yellow=Player  Cyan=Transit  Magenta=Dungeon  Orange=NPC Kill  OrangeRed=Player Kill  LimeGreen=Vehicle  White=New",
                                style="Legend.TLabel")
-        self.legend.grid(row=2, column=0, sticky="w", pady=(4,0))
+        self.legend.grid(row=3, column=0, sticky="w", pady=(4,0))
 
-        ttk.Label(self.panel, text="Detected Players",
-                 style="Header.TLabel").grid(row=3, column=0, sticky="w", pady=(8,0))
-
+        # Kill summary frame
         kill_frame = ttk.Frame(self.panel, style="Dark.TFrame")
-        kill_frame.grid(row=3, column=0, sticky="e", pady=(8,0))
+        kill_frame.grid(row=3, column=0, sticky="e", pady=(4,0))
         self.kill_label = ttk.Label(kill_frame, text="Kills: 0", style="Legend.TLabel",
                                     font=("TkDefaultFont", 10, "bold"))
         self.kill_label.pack()
 
-        self.players_log = DarkScrolledText(self.panel, self.colors, width=60, height=10,
-                                           wrap="word", font=("TkDefaultFont",10))
-        self.players_log.grid(row=4, column=0, sticky="nsew", pady=(6,6))
+        # Create main container with four columns
+        main_container = ttk.Frame(self.panel, style="Dark.TFrame")
+        main_container.grid(row=4, column=0, sticky="nsew", pady=(6,6))
+        main_container.grid_columnconfigure(0, weight=2)  # Players
+        main_container.grid_columnconfigure(1, weight=1)  # Player Kills
+        main_container.grid_columnconfigure(2, weight=2)  # Vehicles
+        main_container.grid_columnconfigure(3, weight=1)  # NPC Kills
+        main_container.grid_rowconfigure(1, weight=1)
+
+        # Players section (left)
+        ttk.Label(main_container, text="Detected Players",
+                 style="Header.TLabel").grid(row=0, column=0, sticky="w", pady=(4,0), padx=(0,4))
+        self.players_log = DarkScrolledText(main_container, self.colors, width=35, height=20,
+                                           wrap="word", font=("TkDefaultFont",9))
+        self.players_log.grid(row=1, column=0, sticky="nsew", pady=(6,0), padx=(0,4))
         self.players_log.configure(state="normal")
         self.update_players_tags()
 
-        ttk.Label(self.panel, text="Nearby Vehicles",
-                 style="Header.TLabel").grid(row=5, column=0, sticky="w", pady=(8,0))
-        self.vehicles_log = DarkScrolledText(self.panel, self.colors, width=60, height=8,
-                                            wrap="word", font=("TkDefaultFont",10))
-        self.vehicles_log.grid(row=6, column=0, sticky="nsew", pady=(6,6))
+        # Player Kills section (middle-left)
+        ttk.Label(main_container, text="Player Kills",
+                 style="Header.TLabel").grid(row=0, column=1, sticky="w", pady=(4,0), padx=(0,4))
+        self.player_kills_log = DarkScrolledText(main_container, self.colors, width=20, height=20,
+                                                 wrap="word", font=("TkDefaultFont",9))
+        self.player_kills_log.grid(row=1, column=1, sticky="nsew", pady=(6,0), padx=(0,4))
+        self.player_kills_log.configure(state="normal")
+
+        # Vehicles section (middle-right)
+        ttk.Label(main_container, text="Nearby Vehicles",
+                 style="Header.TLabel").grid(row=0, column=2, sticky="w", pady=(4,0), padx=(0,4))
+        self.vehicles_log = DarkScrolledText(main_container, self.colors, width=35, height=20,
+                                            wrap="word", font=("TkDefaultFont",9))
+        self.vehicles_log.grid(row=1, column=2, sticky="nsew", pady=(6,0), padx=(0,4))
         self.vehicles_log.configure(state="normal")
         self.update_vehicles_tags()
 
+        # NPC Kills section (right)
+        ttk.Label(main_container, text="NPC Kills",
+                 style="Header.TLabel").grid(row=0, column=3, sticky="w", pady=(4,0))
+        self.npc_kills_log = DarkScrolledText(main_container, self.colors, width=20, height=20,
+                                             wrap="word", font=("TkDefaultFont",9))
+        self.npc_kills_log.grid(row=1, column=3, sticky="nsew", pady=(6,0))
+        self.npc_kills_log.configure(state="normal")
+        self.update_kill_tags()  # Call this ONCE at the end after both kill logs exist
+
         self.running = True
+
+        # Track if user has manually scrolled
+        self.log_auto_scroll = True
+        self.players_auto_scroll = True
+        self.vehicles_auto_scroll = True
+        self.player_kills_auto_scroll = True
+        self.npc_kills_auto_scroll = True
+
+        # Bind scroll events to detect manual scrolling
+        self.log.bind("<MouseWheel>", lambda e: self._on_manual_scroll('log'))
+        self.log.bind("<Button-4>", lambda e: self._on_manual_scroll('log'))
+        self.log.bind("<Button-5>", lambda e: self._on_manual_scroll('log'))
+        self.log.bind("<Key>", lambda e: self._on_manual_scroll('log'))
+
+        self.players_log.bind("<MouseWheel>", lambda e: self._on_manual_scroll('players'))
+        self.players_log.bind("<Button-4>", lambda e: self._on_manual_scroll('players'))
+        self.players_log.bind("<Button-5>", lambda e: self._on_manual_scroll('players'))
+
+        self.vehicles_log.bind("<MouseWheel>", lambda e: self._on_manual_scroll('vehicles'))
+        self.vehicles_log.bind("<Button-4>", lambda e: self._on_manual_scroll('vehicles'))
+        self.vehicles_log.bind("<Button-5>", lambda e: self._on_manual_scroll('vehicles'))
+
+        self.player_kills_log.bind("<MouseWheel>", lambda e: self._on_manual_scroll('player_kills'))
+        self.player_kills_log.bind("<Button-4>", lambda e: self._on_manual_scroll('player_kills'))
+        self.player_kills_log.bind("<Button-5>", lambda e: self._on_manual_scroll('player_kills'))
+
+        self.npc_kills_log.bind("<MouseWheel>", lambda e: self._on_manual_scroll('npc_kills'))
+        self.npc_kills_log.bind("<Button-4>", lambda e: self._on_manual_scroll('npc_kills'))
+        self.npc_kills_log.bind("<Button-5>", lambda e: self._on_manual_scroll('npc_kills'))
         self.refresh()
 
     def on_canvas_resize(self, event):
@@ -1462,9 +1517,12 @@ class RadarApp:
         self.log.update_colors()
         self.players_log.update_colors()
         self.vehicles_log.update_colors()
+        self.player_kills_log.update_colors()
+        self.npc_kills_log.update_colors()
         self.update_log_tags()
         self.update_players_tags()
         self.update_vehicles_tags()
+        self.update_kill_tags()
 
     def update_style(self):
         self.style.configure("Dark.TFrame", background=self.colors['panel_bg'],
@@ -1506,6 +1564,23 @@ class RadarApp:
         self.vehicles_log.tag_config('alive', foreground=self.colors['vehicle_fg'])
         self.vehicles_log.tag_config('softed', foreground=self.colors['incap_fg'])
         self.vehicles_log.tag_config('dead', foreground=self.colors['vehicle_destroy_fg'])
+
+    def update_kill_tags(self):
+        """Configure tags for kill lists"""
+        self.player_kills_log.tag_config('recent', foreground=self.colors['player_kill_fg'])
+        self.player_kills_log.tag_config('old', foreground=self.colors['faded_fg'])
+        self.npc_kills_log.tag_config('recent', foreground=self.colors['npc_kill_fg'])
+        self.npc_kills_log.tag_config('old', foreground=self.colors['faded_fg'])
+
+    def _on_manual_scroll(self, log_name):
+        """Detect when user manually scrolls and disable auto-scroll"""
+        setattr(self, f'{log_name}_auto_scroll', False)
+
+        # Re-enable auto-scroll if user scrolls back to top
+        widget = getattr(self, f'{log_name}_log' if log_name != 'log' else 'log')
+        yview = widget.yview()
+        if yview[0] <= 0.01:  # If scrolled to top (within 1%)
+            setattr(self, f'{log_name}_auto_scroll', True)
 
     def on_mousewheel(self, event):
         if hasattr(event, "delta"):
@@ -1701,6 +1776,9 @@ class RadarApp:
                                    fill=self.colors['label_fg'], font=self.label_font)
 
     def update_log(self):
+        # Save current scroll position
+        current_yview = self.log.yview()[0]
+
         self.log.delete("1.0", tk.END)
         for text, tag in list(self.state["events"]):
             try:
@@ -1708,7 +1786,12 @@ class RadarApp:
             except Exception:
                 self.log.insert(tk.END, text + "\n")
             self.log.insert(tk.END, "-"*80 + "\n", "info")
-        self.log.yview_moveto(0.0)
+
+        # Only auto-scroll to top if user hasn't manually scrolled
+        if self.log_auto_scroll:
+            self.log.yview_moveto(0.0)
+        else:
+            self.log.yview_moveto(current_yview)
 
     def update_players(self):
         self.players_log.delete("1.0", tk.END)
@@ -1744,7 +1827,9 @@ class RadarApp:
 
             self.players_log.insert(tk.END, text, tag)
 
-        self.players_log.yview_moveto(0.0)
+        # Only auto-scroll to top if user hasn't manually scrolled
+        if self.players_auto_scroll:
+            self.players_log.yview_moveto(0.0)
 
     def update_vehicles(self):
         self.vehicles_log.delete("1.0", tk.END)
@@ -1792,7 +1877,41 @@ class RadarApp:
 
             self.vehicles_log.insert(tk.END, text, tag)
 
-        self.vehicles_log.yview_moveto(0.0)
+        # Only auto-scroll to top if user hasn't manually scrolled
+        if self.vehicles_auto_scroll:
+            self.vehicles_log.yview_moveto(0.0)
+
+    def update_player_kills(self):
+        """Update the player kills list"""
+        self.player_kills_log.delete("1.0", tk.END)
+
+        if not self.state.get("players_killed"):
+            self.player_kills_log.insert(tk.END, "No player kills yet\n", "old")
+            return
+
+        killed_list = sorted(list(self.state["players_killed"]))
+        for player_name in killed_list:
+            self.player_kills_log.insert(tk.END, f"{player_name}\n", "recent")
+
+        total = len(killed_list)
+        self.player_kills_log.insert(tk.END, f"\n--- Total: {total} ---", "old")
+        # Only auto-scroll to top if user hasn't manually scrolled
+        if self.player_kills_auto_scroll:
+            self.player_kills_log.yview_moveto(0.0)
+
+    def update_npc_kills(self):
+        """Update the NPC kills count"""
+        self.npc_kills_log.delete("1.0", tk.END)
+
+        total = self.state.get("npc_kills", 0)
+        session = self.state.get("session_npc_kills", 0)
+
+        self.npc_kills_log.insert(tk.END, f"Session: {session}\n", "recent")
+        self.npc_kills_log.insert(tk.END, f"Total: {total}\n", "old")
+
+        # Only auto-scroll to top if user hasn't manually scrolled
+        if self.npc_kills_auto_scroll:
+            self.npc_kills_log.yview_moveto(0.0)
 
     def refresh(self):
         if not self.running:
@@ -1820,6 +1939,8 @@ class RadarApp:
             self.update_log()
             self.update_players()
             self.update_vehicles()
+            self.update_player_kills()
+            self.update_npc_kills()
         except Exception as e:
             print("UI update error:", e)
         self.root.after(300, self.refresh)
